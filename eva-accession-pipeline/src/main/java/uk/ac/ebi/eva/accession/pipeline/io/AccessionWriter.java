@@ -58,21 +58,20 @@ public class AccessionWriter implements ItemStreamWriter<ISubmittedVariant> {
                                                                    .collect(Collectors.toSet());
             HashSet<ISubmittedVariant> distinctVariants = new HashSet<>(variants);
             int duplicateCount = variants.size() - distinctVariants.size();
-
-            List<ISubmittedVariant> variantsWithoutAccession = distinctVariants.stream()
-                                                                               .filter(v -> !accessionedVariants.contains(v))
-                                                                               .collect(Collectors.toList());
             if (duplicateCount != 0) {
                 logger.warn("A variant chunk contains {} repeated variants. This is not an error, but please check " +
                                     "it's expected.", duplicateCount);
             }
+
+            List<ISubmittedVariant> variantsWithoutAccession = distinctVariants.stream()
+                                                                               .filter(v -> !accessionedVariants.contains(v))
+                                                                               .collect(Collectors.toList());
             if (variantsWithoutAccession.size() != 0) {
                 logger.error("A variant chunk wasn't accessioned properly. Only {} variants were accessioned out of " +
                                      "{} distinct variants (from a chunk of {} variants, having {} repeated variants). " +
                                      "The {} variants that were not accessioned are these: {}",
                              accessionedVariants.size(), distinctVariants.size(), variants.size(), duplicateCount,
                              variantsWithoutAccession.size(), variantsWithoutAccession.toString());
-                logger.info("This is the complete chunk of {} variants: {}", variants.size(), variants.toString());
                 throw new IllegalStateException(
                         "A variant chunk wasn't accessioned properly (the relevant information was already logged).");
             }
