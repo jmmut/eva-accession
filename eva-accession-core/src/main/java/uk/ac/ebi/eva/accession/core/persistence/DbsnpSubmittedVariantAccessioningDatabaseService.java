@@ -100,7 +100,7 @@ public class DbsnpSubmittedVariantAccessioningDatabaseService
      * an active accession.
      */
     private void checkAccessionIsActive(List<DbsnpSubmittedVariantEntity> entities, Long accession)
-            throws AccessionMergedException, AccessionDeprecatedException {
+            throws AccessionMergedException, AccessionDeprecatedException, AccessionDoesNotExistException {
         if (entities == null || entities.isEmpty()) {
             this.checkAccessionIsNotMergedOrDeprecated(accession);
         }
@@ -111,8 +111,11 @@ public class DbsnpSubmittedVariantAccessioningDatabaseService
      * More than 1 "merge" events may be present.
      */
     private void checkAccessionIsNotMergedOrDeprecated(Long accession)
-            throws AccessionMergedException, AccessionDeprecatedException {
+            throws AccessionMergedException, AccessionDeprecatedException, AccessionDoesNotExistException {
         List<? extends IEvent<ISubmittedVariant, Long>> events = inactiveService.getEvents(accession);
+        if (events.isEmpty()) {
+            throw new AccessionDoesNotExistException(accession);
+        }
         Optional<? extends IEvent<ISubmittedVariant, Long>> mergedEvent = events.stream()
                                                                                 .filter(e -> EventType.MERGED.equals(
                                                                                         e.getEventType()))
