@@ -137,7 +137,8 @@ public class SubmittedVariantsRestControllerTest {
         Mockito.doThrow(new RuntimeException("Some unexpected error")).when(mockBeaconService).queryBeacon(null, "alt", "ref",
                                                                                                     "CHROM1", 1, "ref",
                                                                                                     false);
-        mockController = new SubmittedVariantsRestController(mockBasicRestController, mockService, mockBeaconService);
+        mockController = new SubmittedVariantsRestController(mockService, mockBeaconService,
+                                                             SubmittedVariant::new);
     }
 
     @After

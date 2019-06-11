@@ -33,6 +33,8 @@ import uk.ac.ebi.ampt2d.commons.accession.core.exceptions.AccessionMergedExcepti
 import uk.ac.ebi.ampt2d.commons.accession.rest.controllers.BasicRestController;
 import uk.ac.ebi.ampt2d.commons.accession.rest.dto.AccessionResponseDTO;
 
+import uk.ac.ebi.eva.accession.core.ClusteredVariant;
+import uk.ac.ebi.eva.accession.core.IClusteredVariant;
 import uk.ac.ebi.eva.accession.core.ISubmittedVariant;
 import uk.ac.ebi.eva.accession.core.SubmittedVariant;
 import uk.ac.ebi.eva.accession.core.SubmittedVariantAccessioningService;
@@ -45,24 +47,26 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/v1/submitted-variants")
 @Api(tags = {"Submitted variants"})
 public class SubmittedVariantsRestController {
 
-    private final BasicRestController<SubmittedVariant, ISubmittedVariant, String, Long> basicRestController;
-
     private BeaconService beaconService;
+
+    private Function<ISubmittedVariant, SubmittedVariant> toSubmittedVariantModel;
 
     private SubmittedVariantAccessioningService service;
 
-    public SubmittedVariantsRestController(
-            BasicRestController<SubmittedVariant, ISubmittedVariant, String, Long> basicRestController,
-            SubmittedVariantAccessioningService service, BeaconService beaconService) {
-        this.basicRestController = basicRestController;
+    public SubmittedVariantsRestController(SubmittedVariantAccessioningService service,
+                                           BeaconService beaconService,
+                                           Function<ISubmittedVariant, SubmittedVariant> toSubmittedVariantModel) {
         this.service = service;
         this.beaconService = beaconService;
+        this.toSubmittedVariantModel = toSubmittedVariantModel;
     }
 
     /**
@@ -79,7 +83,10 @@ public class SubmittedVariantsRestController {
                                     required = true) Long identifier)
             throws AccessionMergedException, AccessionDoesNotExistException, AccessionDeprecatedException {
         try {
-            return ResponseEntity.ok(Collections.singletonList(basicRestController.get(identifier)));
+            return ResponseEntity.ok(service.getAllByAccession(identifier)
+                                            .stream()
+                                            .map(v -> new AccessionResponseDTO<>(v, toSubmittedVariantModel))
+                                            .collect(Collectors.toList()));
         } catch (AccessionDeprecatedException e) {
             // not done with an exception handler because the only way to get the accession parameter would be parsing
             // the exception message

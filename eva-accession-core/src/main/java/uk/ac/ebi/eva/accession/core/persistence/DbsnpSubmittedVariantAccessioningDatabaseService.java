@@ -82,6 +82,10 @@ public class DbsnpSubmittedVariantAccessioningDatabaseService
                                       entity.getVersion());
     }
 
+    /**
+     * This method is overridden because we need to look at all the events to see if the
+     * accession is active. The default implementation looks only at the last event.
+     */
     @Override
     public AccessionVersionsWrapper<ISubmittedVariant, String, Long> findByAccession(
             Long accession) throws AccessionDoesNotExistException, AccessionMergedException, AccessionDeprecatedException {
@@ -91,7 +95,7 @@ public class DbsnpSubmittedVariantAccessioningDatabaseService
     }
 
     /**
-     * if entities is empty it means that the accession is not present in the main collection. Check if it was moved
+     * If entities is empty it means that the accession is not present in the main collection. Check if it was moved
      * to the history collection after it was merged or deprecated, and if so, throw an exception to flag that it's not
      * an active accession.
      */

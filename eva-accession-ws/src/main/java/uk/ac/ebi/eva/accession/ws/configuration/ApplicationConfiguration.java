@@ -21,9 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
 import org.springframework.boot.autoconfigure.web.HttpMessageConvertersAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.WebClientAutoConfiguration;
@@ -32,7 +30,6 @@ import org.springframework.boot.web.client.RestTemplateCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -50,6 +47,7 @@ import uk.ac.ebi.eva.accession.core.configuration.SubmittedVariantAccessioningCo
 import uk.ac.ebi.eva.accession.ws.response.NonRedirectingClientHttpRequestFactory;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Configuration
 @EnableBasicRestControllerAdvice
@@ -67,14 +65,26 @@ public class ApplicationConfiguration {
 
     @Bean
     public BasicRestController<ClusteredVariant, IClusteredVariant, String, Long> basicClusteredRestController(
-            ClusteredVariantAccessioningService service) {
-        return new BasicRestController<>(service, ClusteredVariant::new);
+            ClusteredVariantAccessioningService service,
+            Function<IClusteredVariant, ClusteredVariant> toClusteredVariantModel) {
+        return new BasicRestController<>(service, toClusteredVariantModel);
+    }
+
+    @Bean
+    public Function<IClusteredVariant, ClusteredVariant> getToClusteredVariantModel() {
+        return ClusteredVariant::new;
     }
 
     @Bean
     public BasicRestController<SubmittedVariant, ISubmittedVariant, String, Long> basicSubmittedRestController(
-            SubmittedVariantAccessioningService service) {
-        return new BasicRestController<>(service, SubmittedVariant::new);
+            SubmittedVariantAccessioningService service,
+            Function<ISubmittedVariant, SubmittedVariant> toSubmittedVariantModel) {
+        return new BasicRestController<>(service, toSubmittedVariantModel);
+    }
+
+    @Bean
+    public Function<ISubmittedVariant, SubmittedVariant> getToSubmittedVariantModel() {
+        return SubmittedVariant::new;
     }
 
     @Bean

@@ -90,8 +90,9 @@ public class SubmittedVariantAccessioningService implements AccessioningService<
     }
 
     /**
-     * TODO: conceptually, for variants imported from dbSNP, a single accession could return several documents.
-     * For now, just comply with the accession-commons interface, but this should be changed in the future.
+     * Conceptually, for variants imported from dbSNP, a single accession could return several documents.
+     * This method complies with the accession-commons interface, so it returns only 1 submitted variant. see
+     * {@link #getAllByAccession} for a method that returns every submitted variant with a given accession.
      */
     @Override
     public AccessionWrapper<ISubmittedVariant, String, Long> getByAccession(Long accession)
@@ -100,6 +101,15 @@ public class SubmittedVariantAccessioningService implements AccessioningService<
             return accessioningService.getByAccession(accession);
         } else {
             return accessioningServiceDbsnp.getByAccession(accession);
+        }
+    }
+
+    public List<AccessionWrapper<ISubmittedVariant, String, Long>> getAllByAccession(Long accession)
+            throws AccessionMergedException, AccessionDoesNotExistException, AccessionDeprecatedException {
+        if (accession >= accessioningMonotonicInitSs) {
+            return Collections.singletonList(accessioningService.getByAccession(accession));
+        } else {
+            return accessioningServiceDbsnp.getAllByAccession(accession);
         }
     }
 
