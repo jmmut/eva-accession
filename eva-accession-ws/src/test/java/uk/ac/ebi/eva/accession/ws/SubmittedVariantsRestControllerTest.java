@@ -502,4 +502,14 @@ public class SubmittedVariantsRestControllerTest {
         assertEquals(variant1, response.getBody().get(0).getData());
         assertCreatedDateNotNull(response.getBody());
     }
+
+    @Test
+    public void testGetNonExistingSubmittedVariant() {
+        Long accession = 3L;
+        String getVariantUrl = URL + accession;
+
+        ResponseEntity<String> response = testRestTemplate.getForEntity(getVariantUrl, String.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
 }
