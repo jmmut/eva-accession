@@ -30,11 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.ac.ebi.ampt2d.commons.accession.core.exceptions.AccessionDeprecatedException;
 import uk.ac.ebi.ampt2d.commons.accession.core.exceptions.AccessionDoesNotExistException;
 import uk.ac.ebi.ampt2d.commons.accession.core.exceptions.AccessionMergedException;
-import uk.ac.ebi.ampt2d.commons.accession.rest.controllers.BasicRestController;
 import uk.ac.ebi.ampt2d.commons.accession.rest.dto.AccessionResponseDTO;
 
-import uk.ac.ebi.eva.accession.core.ClusteredVariant;
-import uk.ac.ebi.eva.accession.core.IClusteredVariant;
 import uk.ac.ebi.eva.accession.core.ISubmittedVariant;
 import uk.ac.ebi.eva.accession.core.SubmittedVariant;
 import uk.ac.ebi.eva.accession.core.SubmittedVariantAccessioningService;
@@ -90,7 +87,7 @@ public class SubmittedVariantsRestController {
         } catch (AccessionDeprecatedException e) {
             // not done with an exception handler because the only way to get the accession parameter would be parsing
             // the exception message
-            return ResponseEntity.status(HttpStatus.GONE).body(getDeprecatedSubmittedVariant(identifier));
+            return ResponseEntity.status(HttpStatus.GONE).body(getDeprecatedSubmittedVariants(identifier));
         }
     }
 
@@ -100,7 +97,7 @@ public class SubmittedVariantsRestController {
      * This method is necessary because the behaviour of BasicRestController is to return the HttpStatus.GONE with an
      * error message in the body. We want instead to return the HttpStatus.GONE with the variant in the body.
      */
-    private List<AccessionResponseDTO<SubmittedVariant, ISubmittedVariant, String, Long>> getDeprecatedSubmittedVariant(
+    private List<AccessionResponseDTO<SubmittedVariant, ISubmittedVariant, String, Long>> getDeprecatedSubmittedVariants(
             Long identifier) {
         return Collections.singletonList(
                 new AccessionResponseDTO<>(

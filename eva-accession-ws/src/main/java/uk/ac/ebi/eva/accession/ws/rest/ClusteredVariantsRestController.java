@@ -59,7 +59,7 @@ public class ClusteredVariantsRestController {
     private SubmittedVariantAccessioningService submittedVariantsService;
 
     // TODO don't use the dbsnpInactiveService. This won't return EVA accessioned ClusteredVariants. A method
-    //  getLastInactive was added to {@link SubmittedVariantAccessioningService} to avoid using the inactive
+    //  getInactive was added to {@link SubmittedVariantAccessioningService} to avoid using the inactive
     //  service directly, but at the moment, {@link ClusteredVariantAccessioningService} only deals with dbSNP variants
     private DbsnpClusteredVariantInactiveService inactiveService;
 

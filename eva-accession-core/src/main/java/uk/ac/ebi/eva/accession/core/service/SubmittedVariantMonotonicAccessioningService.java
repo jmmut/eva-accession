@@ -49,6 +49,6 @@ public class SubmittedVariantMonotonicAccessioningService
     }
 
     public AccessionWrapper<ISubmittedVariant, String, Long> getLastInactive(Long accession) {
-        return dbService.getLastInactive(accession);
+        return dbService.getInactive(accession);
     }
 }
