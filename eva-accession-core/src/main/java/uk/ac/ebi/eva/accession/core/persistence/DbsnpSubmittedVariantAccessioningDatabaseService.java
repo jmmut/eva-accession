@@ -154,16 +154,22 @@ public class DbsnpSubmittedVariantAccessioningDatabaseService
         return lastVersionEntity;
     }
 
-    public AccessionWrapper<ISubmittedVariant, String, Long> getLastInactive(Long accession) {
-        IEvent<ISubmittedVariant, Long> lastEvent = ((InactiveAccessionService<ISubmittedVariant, Long, ?>) inactiveService)
-                .getLastEvent(accession);
-        List<? extends IAccessionedObject<ISubmittedVariant, ?, Long>> inactiveObjects = lastEvent.getInactiveObjects();
-        if (inactiveObjects.isEmpty()) {
+    public List<? extends AccessionWrapper<ISubmittedVariant, String, Long>> getInactive(Long accession) {
+        List<? extends IEvent<ISubmittedVariant, Long>> events = inactiveService.getEvents(accession);
+
+        List<? extends AccessionWrapper<ISubmittedVariant, String, Long>> inactiveAccessionWrappers =
+                events.stream()
+                      .flatMap(e -> e.getInactiveObjects().stream())
+                      .map(o -> new AccessionWrapper<>(accession,
+                                                       ((String)o.getHashedMessage()),
+                                                       o.getModel(),
+                                                       o.getVersion()))
+                      .collect(Collectors.toList());
+
+        if (inactiveAccessionWrappers.isEmpty()) {
             throw new IllegalArgumentException(
                     "Accession " + accession + " is not inactive (not present in the operations collection");
         }
-        IAccessionedObject<ISubmittedVariant, ?, Long> inactiveObject = inactiveObjects.get(inactiveObjects.size() - 1);
-        return new AccessionWrapper<>(accession, (String) inactiveObject.getHashedMessage(), inactiveObject.getModel(),
-                                      inactiveObject.getVersion());
+        return inactiveAccessionWrappers;
     }
 }

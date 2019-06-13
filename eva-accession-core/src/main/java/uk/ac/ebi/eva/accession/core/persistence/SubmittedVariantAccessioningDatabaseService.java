@@ -74,17 +74,14 @@ public class SubmittedVariantAccessioningDatabaseService
     public List<? extends AccessionWrapper<ISubmittedVariant, String, Long>> getInactive(Long accession) {
         List<? extends IEvent<ISubmittedVariant, Long>> events = inactiveService.getEvents(accession);
 
-        Stream<? extends IAccessionedObject<ISubmittedVariant, ?, Long>> inactiveObjects =
-                events.stream()
-                      .flatMap(e -> e.getInactiveObjects().stream());
-
-
         List<? extends AccessionWrapper<ISubmittedVariant, String, Long>> inactiveAccessionWrappers =
-                inactiveObjects.map(o -> new AccessionWrapper<>(accession,
-                                                                ((String)o.getHashedMessage()),
-                                                                o.getModel(),
-                                                                o.getVersion()))
-                               .collect(Collectors.toList());
+                events.stream()
+                      .flatMap(e -> e.getInactiveObjects().stream())
+                      .map(o -> new AccessionWrapper<>(accession,
+                                                       ((String)o.getHashedMessage()),
+                                                       o.getModel(),
+                                                       o.getVersion()))
+                      .collect(Collectors.toList());
 
         if (inactiveAccessionWrappers.isEmpty()) {
             throw new IllegalArgumentException(
