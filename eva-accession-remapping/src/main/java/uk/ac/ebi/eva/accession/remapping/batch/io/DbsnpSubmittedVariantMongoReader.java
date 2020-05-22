@@ -20,16 +20,19 @@ import org.springframework.data.mongodb.core.query.Query;
 
 import uk.ac.ebi.eva.accession.core.batch.io.MongoDbCursorItemReader;
 import uk.ac.ebi.eva.accession.core.model.dbsnp.DbsnpSubmittedVariantEntity;
+import uk.ac.ebi.eva.accession.core.model.eva.SubmittedVariantEntity;
 
 import java.util.List;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static uk.ac.ebi.eva.accession.remapping.batch.io.AccessionMongoFields.getMongoField;
 
 public class DbsnpSubmittedVariantMongoReader extends MongoDbCursorItemReader<DbsnpSubmittedVariantEntity> {
 
-    public static final String REFERENCE_SEQUENCE_FIELD = "seq";
+    public static final String REFERENCE_SEQUENCE_FIELD = getMongoField(SubmittedVariantEntity.class,
+                                                                        "referenceSequenceAccession");
 
-    public static final String PROJECT_KEY = "study";
+    public static final String PROJECT_KEY = getMongoField(SubmittedVariantEntity.class, "projectAccession");
 
     public DbsnpSubmittedVariantMongoReader(String assemblyAccession, MongoTemplate mongoTemplate) {
         setTemplate(mongoTemplate);
